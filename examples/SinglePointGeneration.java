@@ -7,16 +7,12 @@ import java.util.TimerTask;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import poisson_disk.PoissonDisc;
 import poisson_disk.PoissonReturnPoint;
-import poisson_disk.RectBB;
 
 /**
  * JavaFX App
@@ -26,9 +22,7 @@ public class SinglePointGeneration extends Application {
 	final static double circle_size = 5;
 
 	@Override
-	public void start(Stage stage) {
-		var javaVersion = SystemInfo.javaVersion();
-		var javafxVersion = SystemInfo.javafxVersion();
+	public void start(@SuppressWarnings("exports") Stage stage) {
 
 		Pane pain = new Pane();
 		

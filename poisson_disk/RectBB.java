@@ -34,26 +34,19 @@ public class RectBB implements BoundryBox {
 		this.positioning = positioning;
 	}
 
-	@Override
 	public void setPosition(double[] position) {
 		this.position = position;
 
 	}
-
-	@Override
 	public void setPosition(double[] position, int positioning) {
 		this.position = position;
 		this.positioning = positioning;
 
 	}
-
-	@Override
 	public void setPosition(double positionx, double positiony) {
 		this.position = new double[] { positionx, positiony };
 
 	}
-
-	@Override
 	public void setPosition(double positionx, double positiony, int positioning) {
 		this.position = new double[] { positionx, positiony };
 		this.positioning = positioning;

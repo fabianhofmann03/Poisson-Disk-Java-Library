@@ -1,0 +1,391 @@
+import java.util.ArrayList;
+
+class bounding_box {
+  PVector position;
+  PVector size;
+
+  float pos_change_x;
+  float pos_change_y;
+
+  bounding_box(PVector position, int positioning, PVector size) {
+    this.position = position;
+    positioning_calc(positioning);
+    this.size = size;
+  }
+
+  bounding_box(int positionx, int positiony, int positioning, int sizex, int sizey) {
+    this.position = new PVector(positionx, positiony);
+    positioning_calc(positioning);
+    this.size = new PVector(sizex, sizey);
+  }
+
+  void setPosition(PVector position) {
+    this.position = position;
+  }
+
+  void setPosition(PVector position, int positioning) {
+    this.position = position;
+    positioning_calc(positioning);
+  }
+
+  void setPosition(int positionx, int positiony) {
+    this.position = new PVector(positionx, positiony);
+  }
+
+  void setPosition(int positionx, int positiony, int positioning) {
+    this.position = new PVector(positionx, positiony);
+    positioning_calc(positioning);
+  }
+
+  void setSize(PVector size) {
+    this.size = size;
+  }
+
+  void setSize(int sizex, int sizey) {
+    this.size = new PVector(sizex, sizey);
+  }
+
+  boolean intersecting(PVector position) {
+    return intersecting((int)position.x, (int)position.y);
+  }
+
+  boolean intersecting(int positionx, int positiony) {
+    /*
+    println("X Boundry");
+     println(-pos_change_x * size.x + position.x);
+     println((1 - pos_change_x) * size.x + position.x);
+     println("Y Boundry");
+     println(-pos_change_y * size.y + position.y);
+     println((1 - pos_change_y) * size.y + position.y);
+     println("\n--------------------\n");
+     */
+    return positionx >= -pos_change_x * size.x + position.x && positionx <= (1 - pos_change_x) * size.x + position.x && positiony >= -pos_change_y * size.y + position.y && positiony <= (1 - pos_change_y) * size.y + position.y;
+  }
+
+  PVector closest(PVector position) {
+    PVector result = new PVector();
+    result.x = max(this.position.x - pos_change_x * this.size.x, min(position.x, this.position.x + (1 - pos_change_x) * this.size.x));
+    result.y = max(this.position.y - pos_change_y * this.size.y, min(position.y, this.position.y + (1 - pos_change_y) * this.size.y));
+    return result;
+  }
+
+  PVector closest(int positionx, int positiony) {
+    PVector result = new PVector();
+    result.x = max(this.position.x - pos_change_x * size.x, min(positionx, this.position.x + (1 - pos_change_x) * this.size.x));
+    result.y = max(this.position.y - pos_change_y * size.y, min(positiony, this.position.y + (1 - pos_change_y) * this.size.y));
+    return result;
+  }
+
+  int getBoundry(int b) {                //0: Top, 1: Right, 2: Bottom, 3: Left
+    switch(b) {
+    case 0:
+      return (int)(position.y - pos_change_y * size.y);
+    case 1:
+      return (int)(position.x + (1 - pos_change_x) * size.x);
+    case 2:
+      return (int)(position.y + (1 - pos_change_y) * size.y);
+    case 3:
+      return (int)(position.x - pos_change_x * size.x);
+    }
+    return -1;
+  }
+
+  void positioning_calc(int positioning) {
+    switch(positioning) {                //Von Position 0 ausgehend
+    case 0:
+      pos_change_x = 0;
+      pos_change_y = 0;
+      break;
+    case 1:
+      pos_change_x = 1f/2f;
+      pos_change_y = 0;
+      break;
+    case 2:
+      pos_change_x = 1;
+      pos_change_y = 0;
+      break;
+    case 3:
+      pos_change_x = 0;
+      pos_change_y = 1f/2f;
+      break;
+    case 4:
+      pos_change_x = 1f/2f;
+      pos_change_y = 1f/2f;
+      break;
+    case 5:
+      pos_change_x = 1;
+      pos_change_y = 1f/2f;
+      break;
+    case 6:
+      pos_change_x = 0;
+      pos_change_y = 1;
+      break;
+    case 7:
+      pos_change_x = 1f/2f;
+      pos_change_y = 1;
+      break;
+    case 8:
+      pos_change_x = 1;
+      pos_change_y = 1;
+      break;
+    }
+  }
+}
+
+class point {
+  int grid_pos;
+  int mode;                  //0: Non-Active, 1: Active, 2: Half-Active
+  float rand;
+
+  point(int pos, int mode) {
+    this.grid_pos = pos;
+    this.mode = mode;
+    this.rand = random(1);
+  }
+
+  void setPos(int pos) {
+    this.grid_pos = pos;
+  }
+
+  void setMode(int mode) {
+    this.mode = mode;
+  }
+
+  int getPos() {
+    return grid_pos;
+  }
+
+  int getMode() {
+    return mode;
+  }
+
+  float getRand() {
+    return rand;
+  }
+}
+
+class return_point {
+  PVector pos;
+  int mode;                  //0: Non-Active, 1: Active, 2: Half-Active
+  float rand;
+
+  return_point(point p, PVector[] grid) {
+    this.pos = grid[p.getPos()];
+    this.mode = p.getMode();
+    this.rand = p.getRand();
+  }
+
+  void setPos(PVector pos) {
+    this.pos = pos;
+  }
+
+  void setMode(int mode) {
+    this.mode = mode;
+  }
+
+  PVector getPos() {
+    return pos;
+  }
+
+  int getMode() {
+    return mode;
+  }
+
+  float getRand() {
+    return rand;
+  }
+}
+
+class poisson_disc {
+  bounding_box bb;
+  float r;
+  final float k = 30;
+  PVector[] grid;
+  float w;
+  int rows;
+  int cols;
+  ArrayList<Integer> active;
+  ArrayList<Integer> half_active;
+  ArrayList<point> points;
+
+  int sizex, sizey;
+
+  poisson_disc(int sizex, int sizey, float r) {
+    this.active = new ArrayList<Integer>();
+    this.half_active = new ArrayList<Integer>();
+    this.points = new ArrayList<point>();
+    this.sizex = sizex;
+    this.sizey = sizey;
+    this.r = r;
+    this.w = r / (float)Math.sqrt(2);
+
+    bb = null;
+
+    //Setup
+    rows = floor(sizey / w);
+    cols = floor(sizex / w);
+
+    grid = new PVector[rows*cols];
+    for (int x = 0; x < rows * cols; x++) {
+      grid[x] = null;
+    }
+  }
+
+  void set_first() {
+    int x0_x;
+    int x0_y;
+
+    if (bb == null) {
+      x0_x = floor(random(this.sizex));
+      x0_y = floor(random(this.sizey));
+    } else {
+      x0_x = floor(random(bb.getBoundry(3), bb.getBoundry(1)));
+      x0_y = floor(random(bb.getBoundry(0), bb.getBoundry(2)));
+    }
+
+    grid[floor(x0_x / w) + floor(x0_y / w) * cols] = new PVector(x0_x, x0_y);
+    points.add(new point(floor(x0_x / w) + floor(x0_y / w) * cols, 1));
+    active.add(floor(x0_x / w) + floor(x0_y / w) * cols);
+  }
+
+  void sub_calc_missing() {
+    int i = floor(random(active.size()));                                                                      //Choose from active list
+    boolean points_found = false;                                                                              //If one of the test-points was ok
+    float str_angle = random(TWO_PI);                                                                          //Random angle where point search starts
+
+    for (int q = 0; q < k; q++) {                                                                               //Search new points k times
+      float angle = random(TWO_PI / k * q, TWO_PI / k * (q + 1)) + str_angle;
+      float magn = random(r, 2 * r);
+
+      PVector new_point = PVector.fromAngle(angle).setMag(magn).add(grid[active.get(i)]);                                               //New calculated point
+      //println(new_point);
+
+      int grid_x = floor(new_point.x / w);                                                                     //Calculating grid position
+      int grid_y = floor(new_point.y / w);
+      //print("Test ");
+      //println(q);
+      if (grid_x >= 0 && grid_x < cols && grid_y >= 0 && grid_y < rows) {
+        boolean pos_ok = true;
+      start_loop:
+        for (int x = -2; x <= 2; x++) {                                                                        //Searching points arround new point
+          for (int y = -2; y <= 2; y++) {
+            if ((grid_x + x) >= 0 && (grid_x + x) < cols && (grid_y + y) >= 0 && (grid_y + y) < rows) {        //Is chosen grid cell out of grid
+              if (grid[(grid_x + x) + (grid_y + y) * cols] != null) {                                          //Is grid cell not empty
+                if (grid[(grid_x + x) + (grid_y + y) * cols].dist(new_point) < r) {                            //Is point in cell too close to new cell
+                  pos_ok = false;                                                                              //New point is useless
+                  break start_loop;
+                }
+              }
+            }
+          }
+        }
+
+        if (pos_ok) {                                                                                          //Point found
+          points_found = true;
+          grid[grid_x + grid_y * cols] = new_point;
+          //println("Intersection?");
+          //println(bb.intersecting(new_point));
+          if (bb == null || bb.intersecting(new_point)) {
+            active.add(grid_x + grid_y * cols);
+            points.add(new point(grid_x + grid_y * cols, 1));
+            break;
+          } else {
+            half_active.add(grid_x + grid_y * cols);
+            points.add(new point(grid_x + grid_y * cols, 2));
+          }
+        }
+      }
+    }
+    if (!points_found) {
+      for (int x = 0; x < points.size(); x++) {
+        if (points.get(x).getPos() == active.get(i)) {
+          points.get(x).setMode(0);
+          break;
+        }
+      }
+      active.remove(i);
+    }
+  }
+
+  void calc_missing() {
+    while (active.size() > 0) {
+      sub_calc_missing();
+    }
+  }
+
+  void calc_missing_once() {
+    if (active.size() > 0) {
+      sub_calc_missing();
+    }
+  }
+
+  void set_bounding_box(bounding_box bb) {
+    this.bb = bb;
+  }
+
+  void delete_bounding_box() {
+    this.bb = null;
+  }
+
+  void update_grid() {
+    this.update_grid(new PVector(0, 0));
+  }
+
+  void update_grid(PVector change) {
+    PVector[] new_grid = new PVector[rows*cols];
+    for (int x = 0; x < rows * cols; x++) {
+      new_grid[x] = null;
+    }
+
+    active = new ArrayList<Integer>();
+    half_active = new ArrayList<Integer>();
+
+    ArrayList<Integer> remover = new ArrayList<Integer>();
+
+    for (int x = 0; x < points.size(); x++) {
+      PVector new_pos = grid[points.get(x).getPos()];
+      //println(new_pos);
+      new_pos = new_pos.add(change);
+
+      int grid_x = floor(new_pos.x / w);                                                                     //Calculating grid position
+      int grid_y = floor(new_pos.y / w);
+
+      if (grid_x >= 0 && grid_x < cols && grid_y >= 0 && grid_y < rows && (bb.intersecting(new_pos) || (bb.closest(new_pos).dist(new_pos) < 2*r))) {
+        new_grid[grid_x + grid_y * cols] = new_pos;
+        points.get(x).setPos(grid_x + grid_y * cols);
+
+        if (bb != null && !bb.intersecting(new_pos)) {
+          half_active.add(grid_x + grid_y * cols);
+          points.get(x).setMode(2);
+        } else if (points.get(x).getMode() == 2 || points.get(x).getMode() == 1) {
+          active.add(grid_x + grid_y * cols);
+          points.get(x).setMode(1);
+        } else {
+          points.get(x).setMode(0);
+        }
+      } else {
+        remover.add(x);
+      }
+    }
+
+    for (int x = remover.size() - 1; x >= 0; x--) {
+      //print("First ");
+      //println(points.get(remover.get(x)).getPos());
+      //println(points.size());
+      points.remove((int)remover.get(x));
+      //print("Second ");
+      //println(points.get(remover.get(x)).getPos());
+      //println(points.size());
+    }
+
+    grid = new_grid;
+  }
+
+  ArrayList<return_point> get_points() {
+    ArrayList<return_point> return_list = new ArrayList<return_point>();
+    for (int x = 0; x < points.size(); x++) {
+      return_list.add(new return_point(points.get(x), grid));
+    }
+    return return_list;
+  }
+}

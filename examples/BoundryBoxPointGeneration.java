@@ -1,17 +1,10 @@
 package com.fabi.poisson_test;
 
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
@@ -31,9 +24,7 @@ public class BoundryBoxPointGeneration extends Application {
 	int left = 0;
 
 	@Override
-	public void start(Stage stage) {
-		var javaVersion = SystemInfo.javaVersion();
-		var javafxVersion = SystemInfo.javafxVersion();
+	public void start(@SuppressWarnings("exports") Stage stage) {
 
 		Pane pain = new Pane();
 		
